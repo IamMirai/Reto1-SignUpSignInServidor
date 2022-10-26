@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
 public class DAOFactoryTest {
     
     /**
-     * Test of getModel method, of class ModelFactory.
+     * Test of getModel method, of class DAOFactory.
      */
     @Test
     public void testGetModel() {
