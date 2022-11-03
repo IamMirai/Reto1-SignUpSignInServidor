@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 /**
  * Manage connections to the database
  * 
- * @author joana
+ * @author Mikel
  */
 public class Pool {
 
@@ -38,7 +38,7 @@ public class Pool {
 	 * Create the Pool object
 	 *
 	 * @param n number of freeConnections
-	 * @throws exceptions.ServerException
+	 * @throws exceptions.ConnectionErrorException
 	 */
 	public Pool(int n) throws ConnectionErrorException {
 		this.createConnections(n);
@@ -59,7 +59,7 @@ public class Pool {
 	 * Creates connections, always respecting the connection limit
 	 * 
 	 * @param n
-	 * @throws ServerException
+	 * @throws ConnectionErrorException
 	 */
 	private void createConnections(int n) throws ConnectionErrorException {
 		// Create the requested new connections
@@ -87,7 +87,7 @@ public class Pool {
 	 * by the CONNECTION_LIMIT property
 	 * 
 	 * @return Connection a connection to be used
-	 * @throws ServerException
+	 * @throws ConnectionErrorException
 	 */
 	public Connection getConnection() throws ConnectionErrorException {
 		try {
@@ -128,25 +128,11 @@ public class Pool {
 			throw new ConnectionErrorException();
 		}
 	}
-
-	/**
-	 * Returns a list of all the open connections
-	 * 
-	 * @return
-	 */
-	private List<Connection> getAllConnections() {
-		List<Connection> allCons = new ArrayList<Connection>();
-		freeConnections.stream()
-				.forEach(con -> allCons.add(con));
-		usedConnections.stream()
-				.forEach(con -> allCons.add(con));
-		return allCons;
-	}
-
-	/**
+        
+        /**
 	 * Kill all connections
 	 * 
-	 * @throws ServerException
+	 * @throws ConnectionErrorException
 	 */
 	public void killAllConnections() throws ConnectionErrorException {
 		// Get all open connections
@@ -161,6 +147,20 @@ public class Pool {
 					}
 				});
 		cleanClosedConnections();
+	}
+
+	/**
+	 * Returns a list of all the open connections
+	 * 
+	 * @return
+	 */
+	private List<Connection> getAllConnections() {
+		List<Connection> allCons = new ArrayList<Connection>();
+		freeConnections.stream()
+				.forEach(con -> allCons.add(con));
+		usedConnections.stream()
+				.forEach(con -> allCons.add(con));
+		return allCons;
 	}
 
 	/**
