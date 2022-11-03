@@ -27,7 +27,7 @@ public class Pool {
 
 	private Stack<Connection> usedConnections = new Stack<Connection>();
 
-	protected ResourceBundle configFile = ResourceBundle.getBundle("dataAccess.config");
+	protected ResourceBundle configFile = ResourceBundle.getBundle("config.properties");
 	protected String url = configFile.getString("URL"),
 			user = configFile.getString("USER"),
 			pass = configFile.getString("PASSWORD");
