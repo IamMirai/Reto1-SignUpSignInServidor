@@ -5,9 +5,7 @@
  */
 package model;
 
-import datatransferobject.MessageEnum;
 import datatransferobject.Model;
-import datatransferobject.Package;
 import datatransferobject.User;
 import datatransferobject.UserPrivilege;
 import datatransferobject.UserStatus;
@@ -20,9 +18,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
@@ -51,7 +46,15 @@ public class DAO implements Model {
     private final String insertSignIn 
             = "INSERT INTO signin VALUES (?, CURRENT_TIME())";
 
-    
+    /**
+     * Method to do the sign in of a client
+     * @param user the user that has to be checked if it exists
+     * @return the user if it finds one 
+     * @throws InvalidUserException the specified user does not exist
+     * @throws ConnectionErrorException a connection error ocurred while trying to connect to the DB
+     * @throws TimeOutException can't connect to the DB
+     * @throws MaxConnectionExceededException the maximum connection number was exceeded
+     */
     @Override
     public User doSignIn(User user) throws InvalidUserException, ConnectionErrorException, TimeOutException, MaxConnectionExceededException {
         try {
@@ -93,6 +96,15 @@ public class DAO implements Model {
         } 
     }
 
+    /**
+     * Method to register a new user
+     * @param user the user that is going to be saved in the DB
+     * @return the user if there is no error otherwise returns null
+     * @throws UserExistException the specified user already exists
+     * @throws ConnectionErrorException a connection error ocurred while trying to connect to the DB
+     * @throws TimeOutException can't connect to the DB
+     * @throws MaxConnectionExceededException the maximum connection number was exceeded
+     */
     @Override
     public User doSignUp(User user) throws UserExistException, ConnectionErrorException, TimeOutException, MaxConnectionExceededException {
         try {
