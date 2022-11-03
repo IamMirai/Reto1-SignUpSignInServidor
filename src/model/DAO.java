@@ -11,6 +11,11 @@ import datatransferobject.Package;
 import datatransferobject.User;
 import datatransferobject.UserPrivilege;
 import datatransferobject.UserStatus;
+import exceptions.ConnectionErrorException;
+import exceptions.InvalidUserException;
+import exceptions.MaxConnectionExceededException;
+import exceptions.TimeOutException;
+import exceptions.UserExistException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -46,8 +51,9 @@ public class DAO implements Model {
     private final String insertSignIn 
             = "INSERT INTO signin VALUES (?, CURRENT_TIME())";
 
+    
     @Override
-    public Package doSignIn(User user) {
+    public User doSignIn(User user) throws InvalidUserException, ConnectionErrorException, TimeOutException, MaxConnectionExceededException {
         try {
             stmt = con.prepareStatement(signIn);
             stmt.setString(1, user.getLogin());
@@ -80,15 +86,15 @@ public class DAO implements Model {
             stmt.setInt(1, user1.getId());
             stmt.executeUpdate();
             
-            return new Package(user, MessageEnum.AN_OK);
+            return user;
 
         } catch (SQLException sqle) {
-            return new Package(null, MessageEnum.AN_INVALIDUSER);
+            return null;
         } 
     }
 
     @Override
-    public Package doSignUp(User user) {
+    public User doSignUp(User user) throws UserExistException, ConnectionErrorException, TimeOutException, MaxConnectionExceededException {
         try {
             stmt = con.prepareStatement(signUp);
             stmt.setString(1, user.getLogin());
@@ -108,9 +114,9 @@ public class DAO implements Model {
             stmt.setTimestamp(7, user.getLastPasswordChange());
 
             stmt.executeUpdate();
-            return  new Package(user, MessageEnum.AN_OK);
+            return user;
         } catch (SQLException sqle) {
-            return new Package(null, MessageEnum.AN_USEREXIST);
+            return null;
         }
     }
 
