@@ -21,61 +21,38 @@ import datatransferobject.Package;
  *
  * @author 2dam
  */
-public class Application {  
-    ServerSocket scktServer;
-    static Socket scktClient;
-    static ObjectOutputStream oos;
-    static ObjectInputStream ois;
-    ResourceBundle bundle = ResourceBundle.getBundle("config.properties");
-    final Integer PORT = Integer.parseInt(bundle.getString("PORT"));    
-    final Integer MAX_CONNECTIONS = Integer.parseInt(bundle.getString("MAX_CONNECTIONS"));
-    static Integer connections = 0;
-    Package pack;
-    
+public class Application {
+    private ServerSocket scktServer;
+    private Socket scktClient;
+    private final ResourceBundle bundle = ResourceBundle.getBundle("config.properties");
+    private final Integer MAX_CONNECTIONS = Integer.parseInt(bundle.getString("MAX_CONNECTIONS"));
+    private static Integer connections = 0;
+
     public Application() {
         try {
-            scktServer = new ServerSocket(PORT);
+            scktServer = new ServerSocket(Integer.parseInt(bundle.getString("PORT")));
             while (true) {
-                scktClient = scktServer.accept();
-                connections++;
-                ois = new ObjectInputStream(scktClient.getInputStream());
-                oos = new ObjectOutputStream(scktClient.getOutputStream());
-                if (connections > MAX_CONNECTIONS) {
-                    pack.setMessage(MessageEnum.AN_MAXCONNECTION);
-                    oos.writeObject(pack);
-                    oos.close();
-                    ois.close();
-                    scktClient.close();
-                    break;
+                if (connections <= MAX_CONNECTIONS) {
+                    scktClient = scktServer.accept();
+                    Worker worker = new Worker(scktClient);
+                    worker.start();
+                    connections++;
                 }
-                pack = (Package) ois.readObject();
-                Worker worker = new Worker(pack);
-                worker.start();
             }
         } catch (IOException ex) {
             Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public static synchronized void closeWorker(Package pack) {
-        try {
-            oos.writeObject(pack);
-            oos.close();
-            ois.close();
-            scktClient.close();
-            
-            connections--;
-        } catch (IOException ex) {
-            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
+    public static synchronized void removeConnection() {
+        connections--;
     }
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         new Application();
     }
-    
+
 }
