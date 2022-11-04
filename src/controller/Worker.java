@@ -30,26 +30,27 @@ import model.DAOFactory;
  */
 public class Worker extends Thread {
     private Package pack;
-    private ObjectOutputStream oos;
-    private ObjectInputStream ois;
-    private Socket skt;
-    private User user = null;
+    private final Socket sckt;
+    private User user;
+
     
     public Worker(Socket sckt) {
         this.skt = sckt;
     }
     
+    @Override
     public void run() {
         try {
-            oos = new ObjectOutputStream(skt.getOutputStream());
-            ois = new ObjectInputStream(skt.getInputStream());
+            ObjectInputStream ois = new ObjectInputStream(sckt.getInputStream());
+
             Model model = DAOFactory.getModel();
             
             pack = (Package) ois.readObject();
             if (pack.getMessage().equals(MessageEnum.RE_SIGNIN)) {
                 user = model.doSignIn(pack.getUser());
+                pack.setUser(user);
             } else if (pack.getMessage().equals(MessageEnum.RE_SIGNUP)) {
-                user = model.doSignUp(pack.getUser());
+                model.doSignUp(pack.getUser());
             }
             pack.setMessage(MessageEnum.AN_OK);
         } catch (IOException ex) {
@@ -57,19 +58,24 @@ public class Worker extends Thread {
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InvalidUserException ex) {
+            Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
             pack.setMessage(MessageEnum.AN_INVALIDUSER);
-        } catch (ConnectionErrorException ex) {
-            pack.setMessage(MessageEnum.AN_CONNECTIONERROR);
         } catch (TimeOutException ex) {
             Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
         } catch (MaxConnectionExceededException ex) {
+            Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
             pack.setMessage(MessageEnum.AN_MAXCONNECTION);
         } catch (UserExistException ex) {
+            Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
             pack.setMessage(MessageEnum.AN_USEREXIST);
+        } catch (ConnectionErrorException ex) {
+            Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
-                pack.setUser(user);
+                ObjectOutputStream oos = new ObjectOutputStream(sckt.getOutputStream()); 
                 oos.writeObject(pack);
+                oos.close();
+
                 Application.removeConnection();
             } catch (IOException ex) {
                 Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);

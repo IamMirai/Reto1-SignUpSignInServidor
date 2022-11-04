@@ -6,16 +6,12 @@
 package main;
 
 import controller.Worker;
-import datatransferobject.MessageEnum;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import datatransferobject.Package;
 
 /**
  *
@@ -27,10 +23,12 @@ public class Application {
     private final ResourceBundle bundle = ResourceBundle.getBundle("pool.config");
     private final Integer MAX_CONNECTIONS = Integer.parseInt(bundle.getString("MAX_CONNECTIONS"));
     private static Integer connections = 0;
+    private static final Logger LOGGER = Logger.getLogger("Application");
 
     public Application() {
         try {
             scktServer = new ServerSocket(Integer.parseInt(bundle.getString("PORT")));
+            LOGGER.log(Level.INFO, "Waiting for connection...\nPORT: {0}", scktServer.getLocalPort());
             while (true) {
                 if (connections <= MAX_CONNECTIONS) {
                     scktClient = scktServer.accept();
@@ -41,7 +39,7 @@ public class Application {
             }
         } catch (IOException ex) {
             Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
     }
 
     public static synchronized void removeConnection() {

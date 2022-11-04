@@ -15,9 +15,12 @@ import exceptions.MaxConnectionExceededException;
 import exceptions.TimeOutException;
 import exceptions.UserExistException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import pool.Pool;
 
@@ -27,23 +30,12 @@ import pool.Pool;
  */
 public class DAO implements Model {
 
-    public DAO() {
-    }
-    
     private Connection con;
-    private Pool pool = new Pool();
-
-
+    Pool pool = new Pool();
     private PreparedStatement stmt;
-
-    private final String signUp
-            = "INSERT INTO USER VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)";
-
-    private final String signIn
-            = "SELECT u.* FROM user u WHERE login = ? AND password = ?";
-    
-    private final String insertSignIn 
-            = "INSERT INTO signin VALUES (?, CURRENT_TIME())";
+    private final String signUp = "INSERT INTO USER VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)";
+    private final String signIn = "SELECT u.* FROM user u WHERE login = ? AND password = ?";
+    private final String insertSignIn = "INSERT INTO signin VALUES (?, CURRENT_TIME())";
 
     /**
      * Method to do the sign in of a client
@@ -55,7 +47,9 @@ public class DAO implements Model {
      * @throws MaxConnectionExceededException the maximum connection number was exceeded
      */
     @Override
-    public User doSignIn(User user) throws InvalidUserException, ConnectionErrorException, TimeOutException, MaxConnectionExceededException {
+
+    public User doSignIn(User user) throws InvalidUserException, TimeOutException, MaxConnectionExceededException {
+
         try {
             con = pool.getConnection();
             stmt = con.prepareStatement(signIn);
@@ -89,9 +83,15 @@ public class DAO implements Model {
             
             return user;
 
-        } catch (SQLException sqle) {
-            return null;
-        } 
+        } catch (SQLException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            return user;
+        } catch (ConnectionErrorException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            return user;
+        } finally {
+            closeConnection();
+        }
     }
 
     /**
@@ -104,7 +104,8 @@ public class DAO implements Model {
      * @throws MaxConnectionExceededException the maximum connection number was exceeded
      */
     @Override
-    public User doSignUp(User user) throws UserExistException, ConnectionErrorException, TimeOutException, MaxConnectionExceededException {
+    public void doSignUp(User user) throws UserExistException, TimeOutException, MaxConnectionExceededException {
+
         try {
             con = pool.getConnection();
             stmt = con.prepareStatement(signUp);
@@ -125,9 +126,26 @@ public class DAO implements Model {
             stmt.setTimestamp(7, user.getLastPasswordChange());
 
             stmt.executeUpdate();
-            return user;
-        } catch (SQLException sqle) {
-            return null;
+            
+        } catch (SQLException | ConnectionErrorException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            closeConnection();
+        }
+    }
+    
+    public void closeConnection() {
+        try {
+            if (stmt != null) {
+                stmt.close();
+            }
+            if (con != null) {
+                con.close();
+                pool.releaseConnection(con);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+
         }
     }
 
