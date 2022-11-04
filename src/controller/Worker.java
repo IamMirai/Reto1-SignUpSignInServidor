@@ -30,18 +30,17 @@ import model.DAOFactory;
  */
 public class Worker extends Thread {
     private Package pack;
-    private final Socket sckt;
+    private final Socket skt;
     private User user;
-
     
-    public Worker(Socket sckt) {
-        this.skt = sckt;
+    public Worker(Socket skt) {
+        this.skt = skt;
     }
     
     @Override
     public void run() {
         try {
-            ObjectInputStream ois = new ObjectInputStream(sckt.getInputStream());
+            ObjectInputStream ois = new ObjectInputStream(skt.getInputStream());
 
             Model model = DAOFactory.getModel();
             
@@ -72,7 +71,7 @@ public class Worker extends Thread {
             Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
-                ObjectOutputStream oos = new ObjectOutputStream(sckt.getOutputStream()); 
+                ObjectOutputStream oos = new ObjectOutputStream(skt.getOutputStream()); 
                 oos.writeObject(pack);
                 oos.close();
 
