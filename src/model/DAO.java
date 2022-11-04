@@ -55,29 +55,33 @@ public class DAO implements Model {
             stmt.setString(2, user.getPassword());
             ResultSet rs = stmt.executeQuery();
 
-            User user1 = null;
+            User userN = null;
             if (rs.next()) {
-                user1 = new User();
+                userN = new User();
 
-                user.setLogin(rs.getString("login"));
-                user.setEmail(rs.getString("email"));
-                user.setFullName(rs.getString("fullName"));
+                userN.setLogin(rs.getString("login"));
+                userN.setEmail(rs.getString("email"));
+                userN.setFullName(rs.getString("fullName"));
                 if (rs.getInt("status") == 1) {
-                    user.setStatus(UserStatus.ENABLED);
+                    userN.setStatus(UserStatus.ENABLED);
                 } else {
-                    user.setStatus(UserStatus.DISABLED);
+                    userN.setStatus(UserStatus.DISABLED);
                 }
                 if (rs.getInt("privilege") == 1) {
-                    user.setPrivilege(UserPrivilege.USER);
+                    userN.setPrivilege(UserPrivilege.USER);
                 } else {
-                    user.setPrivilege(UserPrivilege.ADMIN);
+                    userN.setPrivilege(UserPrivilege.ADMIN);
                 }
-                user.setPassword(rs.getString("password"));
-                user.setLastPasswordChange(rs.getTimestamp("lastPasswordChange"));
+                userN.setPassword(rs.getString("password"));
+                userN.setLastPasswordChange(rs.getTimestamp("lastPasswordChange"));
             }
 
             stmt = con.prepareStatement(insertSignIn);
             stmt.executeUpdate();
+            
+            if (!userN.getPassword().equals(user.getPassword())) {
+                throw new InvalidUserException();
+            }
             
             return user;
 
@@ -123,7 +127,10 @@ public class DAO implements Model {
             stmt.setTimestamp(7, user.getLastPasswordChange());
 
             stmt.executeUpdate();
-        } catch (SQLException | ConnectionErrorException ex) {
+        } catch (SQLException ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            throw new UserExistException();
+        } catch (ConnectionErrorException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             closeConnection();
