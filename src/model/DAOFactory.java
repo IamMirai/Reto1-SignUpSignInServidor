@@ -6,6 +6,7 @@
 package model;
 
 import datatransferobject.Model;
+import java.sql.Connection;
 
 /**
  *
@@ -13,7 +14,7 @@ import datatransferobject.Model;
  */
 public class DAOFactory {
         private static Model model;
-    
+        
     public static Model getModel() {
         if (model == null) {
             model = new DAO();

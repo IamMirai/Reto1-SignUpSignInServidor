@@ -30,22 +30,22 @@ import model.DAOFactory;
  */
 public class Worker extends Thread {
     private Package pack;
-    private ObjectOutputStream dos;
-    private ObjectInputStream dis;
-    private Socket sckt;
+    private ObjectOutputStream oos;
+    private ObjectInputStream ois;
+    private Socket skt;
     private User user = null;
     
     public Worker(Socket sckt) {
-        this.sckt = sckt;
+        this.skt = sckt;
     }
     
     public void run() {
         try {
-            dos = new ObjectOutputStream(sckt.getOutputStream());
-            dis = new ObjectInputStream(sckt.getInputStream());
+            oos = new ObjectOutputStream(skt.getOutputStream());
+            ois = new ObjectInputStream(skt.getInputStream());
             Model model = DAOFactory.getModel();
             
-            pack = (Package) dis.readObject();
+            pack = (Package) ois.readObject();
             if (pack.getMessage().equals(MessageEnum.RE_SIGNIN)) {
                 user = model.doSignIn(pack.getUser());
             } else if (pack.getMessage().equals(MessageEnum.RE_SIGNUP)) {
@@ -69,7 +69,7 @@ public class Worker extends Thread {
         } finally {
             try {
                 pack.setUser(user);
-                dos.writeObject(pack);
+                oos.writeObject(pack);
                 Application.removeConnection();
             } catch (IOException ex) {
                 Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);

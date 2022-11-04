@@ -24,7 +24,7 @@ import datatransferobject.Package;
 public class Application {
     private ServerSocket scktServer;
     private Socket scktClient;
-    private final ResourceBundle bundle = ResourceBundle.getBundle("config.properties");
+    private final ResourceBundle bundle = ResourceBundle.getBundle("pool.config");
     private final Integer MAX_CONNECTIONS = Integer.parseInt(bundle.getString("MAX_CONNECTIONS"));
     private static Integer connections = 0;
 
