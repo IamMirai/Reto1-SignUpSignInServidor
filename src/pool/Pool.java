@@ -5,48 +5,70 @@
  */
 package pool;
 
+import exceptions.ConnectionErrorException;
 import java.sql.Connection;
-import java.util.ArrayList;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ResourceBundle;
+import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author User
  */
 public class Pool {
-   private SQLAccess sql = new SQLAccess();
-   private static ArrayList<ServerConnection> connections = new ArrayList<ServerConnection>();
-   private ServerConnection con = null;
-   
-   public Connection getConnection(){
-       for(int i = 0; i < connections.size(); i++){
-           if(!connections.get(i).isActive()){
-               connections.get(i).setActive(true);
-               return connections.get(i).getConnection();
-           }
-       }
-       con.setConnection(sql.openConnection());
-       con.setActive(true);
-       connections.add(con);
-       return con.getConnection();
-   }
-   
-   public void freeConnection(Connection con){
-       for(int i = 0; i<connections.size(); i++){
-           if(connections.get(i).equals(con)){
-               connections.get(i).setActive(false);
-               i = connections.size();
-           }
-       }
-   }
-   
-   public void removeConnection(Connection con){
-       for(int i = 0; i<connections.size(); i++){
-           if(connections.get(i).equals(con)){
-               sql.closeConnection(con);
-               connections.remove(i);
-               i = connections.size();
-           }
-       }
-   }
-   
+    private ResourceBundle bundle = ResourceBundle.getBundle("pool.config");
+    private final String url = bundle.getString("URL");
+    private final String user = bundle.getString("USER");
+    private final String password = bundle.getString("PASS");
+    private final int maxConnections = Integer.parseInt(bundle.getString("MAX_CONNECTIONS"));
+    private static Stack<Connection> usedConnections = new Stack<>();
+    private static Stack<Connection> releasedConnections = new Stack<>();
+    Connection connection = null;
+    
+    public synchronized Connection getConnection() throws ConnectionErrorException {
+        if ((usedConnections.size() + releasedConnections.size()) > maxConnections) {
+            throw new ConnectionErrorException("Maximum number of requests reached. Try it again later.");
+        } else if (releasedConnections.empty()) {
+            connection = createConnection();
+            usedConnections.push(connection);
+        } else {
+            connection = releasedConnections.pop();
+            usedConnections.push(connection);
+        }
+        return connection;
+    }
+    
+    public void releaseConnection(Connection connection) {
+        releasedConnections.push(connection);
+        usedConnections.remove(connection);
+    }
+    
+    public Connection createConnection() {
+        try {
+            connection = DriverManager.getConnection(url,user,password); 
+        } catch (SQLException ex) {
+            Logger.getLogger(Pool.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return connection;
+    }
+    
+    public static void closeAllConnections() {
+        for (int i = 0; i < releasedConnections.size(); i++) {
+            try {
+                releasedConnections.get(i).close();
+            }catch(SQLException ex) {
+                Logger.getLogger(Pool.class.getName()).log(Level.SEVERE,null,ex);
+            }
+        }
+        for (int i = 0; i < usedConnections.size(); i++) {
+            try {
+                usedConnections.get(i).close();
+            }catch(SQLException ex) {
+                Logger.getLogger(Pool.class.getName()).log(Level.SEVERE,null,ex);
+            }
+        }
+    }
 }
