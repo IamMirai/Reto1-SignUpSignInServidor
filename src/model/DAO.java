@@ -136,7 +136,6 @@ public class DAO implements Model {
                 stmt.close();
             }
             if (con != null) {
-                con.close();
                 pool.releaseConnection(con);
             }
         } catch (SQLException ex) {

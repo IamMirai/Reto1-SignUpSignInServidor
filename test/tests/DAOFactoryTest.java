@@ -1,11 +1,12 @@
-package model;
+package tests;
 
 import datatransferobject.Model;
+import model.DAO;
+import model.DAOFactory;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- *
  * @author haize
  */
 public class DAOFactoryTest {
@@ -14,7 +15,7 @@ public class DAOFactoryTest {
      * Test of getModel method, of class DAOFactory.
      */
     @Test
-    public void testGetModel() {
+    public static void testGetModel() {
         Model result = DAOFactory.getModel();
         assertNotNull("Null model", result);
         assertTrue("Instance of model is not ModelImplementation", result instanceof DAO);
