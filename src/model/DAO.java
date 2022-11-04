@@ -18,6 +18,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Logger;
+import pool.Pool;
 
 /**
  *
@@ -25,15 +27,12 @@ import java.sql.SQLException;
  */
 public class DAO implements Model {
 
-    private final Connection con;
-
-    public DAO(Connection pConnection) {
-        con = pConnection;
+    public DAO() {
     }
+    
+    private Connection con;
+    private Pool pool = new Pool();
 
-    public Connection getConnection() {
-        return con;
-    }
 
     private PreparedStatement stmt;
 
@@ -58,6 +57,7 @@ public class DAO implements Model {
     @Override
     public User doSignIn(User user) throws InvalidUserException, ConnectionErrorException, TimeOutException, MaxConnectionExceededException {
         try {
+            con = pool.getConnection();
             stmt = con.prepareStatement(signIn);
             stmt.setString(1, user.getLogin());
             stmt.setString(2, user.getPassword());
@@ -67,7 +67,6 @@ public class DAO implements Model {
             if (rs.next()) {
                 user1 = new User();
 
-                user.setId(rs.getInt("user_id"));
                 user.setLogin(rs.getString("login"));
                 user.setEmail(rs.getString("email"));
                 user.setFullName(rs.getString("fullName"));
@@ -86,7 +85,6 @@ public class DAO implements Model {
             }
 
             stmt = con.prepareStatement(insertSignIn);
-            stmt.setInt(1, user1.getId());
             stmt.executeUpdate();
             
             return user;
@@ -108,6 +106,7 @@ public class DAO implements Model {
     @Override
     public User doSignUp(User user) throws UserExistException, ConnectionErrorException, TimeOutException, MaxConnectionExceededException {
         try {
+            con = pool.getConnection();
             stmt = con.prepareStatement(signUp);
             stmt.setString(1, user.getLogin());
             stmt.setString(2, user.getEmail());
