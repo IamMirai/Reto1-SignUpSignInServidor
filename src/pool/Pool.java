@@ -15,8 +15,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
- * @author User
+ * Manage connections to the database
+ * 
+ * @author joana
  */
 public class Pool {
     private ResourceBundle bundle = ResourceBundle.getBundle("pool.config");
@@ -72,3 +73,4 @@ public class Pool {
         }
     }
 }
+

@@ -32,15 +32,17 @@ public class Worker extends Thread {
     private Package pack;
     private final Socket sckt;
     private User user;
+
     
     public Worker(Socket sckt) {
-        this.sckt = sckt;
+        this.skt = sckt;
     }
     
     @Override
     public void run() {
         try {
             ObjectInputStream ois = new ObjectInputStream(sckt.getInputStream());
+
             Model model = DAOFactory.getModel();
             
             pack = (Package) ois.readObject();
@@ -73,6 +75,7 @@ public class Worker extends Thread {
                 ObjectOutputStream oos = new ObjectOutputStream(sckt.getOutputStream()); 
                 oos.writeObject(pack);
                 oos.close();
+
                 Application.removeConnection();
             } catch (IOException ex) {
                 Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
