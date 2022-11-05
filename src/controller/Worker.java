@@ -41,6 +41,7 @@ public class Worker extends Thread {
     public void run() {
         try {
             ObjectInputStream ois = new ObjectInputStream(skt.getInputStream());
+
             Model model = DAOFactory.getModel();
             
             pack = (Package) ois.readObject();
@@ -74,6 +75,7 @@ public class Worker extends Thread {
                 ObjectOutputStream oos = new ObjectOutputStream(skt.getOutputStream()); 
                 oos.writeObject(pack);
                 oos.close();
+
                 Application.removeConnection();
             } catch (IOException ex) {
                 Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);

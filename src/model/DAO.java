@@ -47,7 +47,9 @@ public class DAO implements Model {
      * @throws MaxConnectionExceededException the maximum connection number was exceeded
      */
     @Override
+
     public User doSignIn(User user) throws InvalidUserException, TimeOutException, MaxConnectionExceededException {
+
         try {
             con = pool.getConnection();
             stmt = con.prepareStatement(signIn);
@@ -108,6 +110,7 @@ public class DAO implements Model {
      */
     @Override
     public void doSignUp(User user) throws UserExistException, TimeOutException, MaxConnectionExceededException {
+
         try {
             con = pool.getConnection();
             stmt = con.prepareStatement(signUp);
@@ -128,10 +131,8 @@ public class DAO implements Model {
             stmt.setTimestamp(7, user.getLastPasswordChange());
 
             stmt.executeUpdate();
-        } catch (SQLException ex) {
-            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-            throw new UserExistException();
-        } catch (ConnectionErrorException ex) {
+            
+        } catch (SQLException | ConnectionErrorException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             closeConnection();
@@ -148,7 +149,8 @@ public class DAO implements Model {
             }
         } catch (SQLException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+
         }
     }
-    
+
 }
