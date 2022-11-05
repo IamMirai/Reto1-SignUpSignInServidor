@@ -35,7 +35,7 @@ public class DAO implements Model {
     private PreparedStatement stmt;
     private final String signUp = "INSERT INTO USER VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)";
     private final String signIn = "SELECT u.* FROM user u WHERE login = ? AND password = ?";
-    private final String insertSignIn = "INSERT INTO signin VALUES (?, CURRENT_TIME())";
+    private final String insertSignIn = "INSERT INTO signin (user_id, lastSignIn) SELECT user_id, CURRENT_TIME() FROM user WHERE login = ?";
 
     /**
      * Method to do the sign in of a client
@@ -62,12 +62,12 @@ public class DAO implements Model {
                 userN.setLogin(rs.getString("login"));
                 userN.setEmail(rs.getString("email"));
                 userN.setFullName(rs.getString("fullName"));
-                if (rs.getInt("status") == 1) {
+                if (UserStatus.valueOf(rs.getString("status")).equals(UserStatus.ENABLED)) {
                     userN.setStatus(UserStatus.ENABLED);
                 } else {
                     userN.setStatus(UserStatus.DISABLED);
                 }
-                if (rs.getInt("privilege") == 1) {
+                if (UserPrivilege.valueOf(rs.getString("privilege")).equals(UserPrivilege.USER)) {
                     userN.setPrivilege(UserPrivilege.USER);
                 } else {
                     userN.setPrivilege(UserPrivilege.ADMIN);
@@ -77,9 +77,10 @@ public class DAO implements Model {
             }
 
             stmt = con.prepareStatement(insertSignIn);
+            stmt.setString(1, user.getLogin());
             stmt.executeUpdate();
             
-            if (!userN.getPassword().equals(user.getPassword())) {
+            if (userN == null || !userN.getPassword().equals(user.getPassword())) {
                 throw new InvalidUserException();
             }
             

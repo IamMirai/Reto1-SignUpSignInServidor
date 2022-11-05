@@ -68,6 +68,7 @@ public class Worker extends Thread {
             pack.setMessage(MessageEnum.AN_USEREXIST);
         } catch (ConnectionErrorException ex) {
             Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
+             pack.setMessage(MessageEnum.AN_CONNECTIONERROR);
         } finally {
             try {
                 ObjectOutputStream oos = new ObjectOutputStream(skt.getOutputStream()); 
