@@ -48,7 +48,7 @@ public class DAO implements Model {
      */
     @Override
 
-    public User doSignIn(User user) throws InvalidUserException, TimeOutException, MaxConnectionExceededException {
+    public User doSignIn(User user) throws InvalidUserException, TimeOutException, MaxConnectionExceededException, ConnectionErrorException {
 
         try {
             con = pool.getConnection();
@@ -89,9 +89,6 @@ public class DAO implements Model {
             return user;
 
         } catch (SQLException ex) {
-            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-            return user;
-        } catch (ConnectionErrorException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
             return user;
         } finally {
