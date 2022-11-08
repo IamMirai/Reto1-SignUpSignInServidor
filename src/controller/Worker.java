@@ -32,18 +32,23 @@ public class Worker extends Thread {
     private Package pack;
     private final Socket skt;
     private User user;
+    private Boolean exc;
     
-    public Worker(Socket skt) {
+    public Worker(Socket skt, Boolean exc) {
         this.skt = skt;
+        this.exc = exc;
+        pack = new Package();
     }
     
     @Override
     public void run() {
         try {
+            Application.addConnection();
+            if (exc) {
+                throw new MaxConnectionExceededException();
+            }
             ObjectInputStream ois = new ObjectInputStream(skt.getInputStream());
-
             Model model = DAOFactory.getModel();
-            
             pack = (Package) ois.readObject();
             if (pack.getMessage().equals(MessageEnum.RE_SIGNIN)) {
                 user = model.doSignIn(pack.getUser());
@@ -75,7 +80,7 @@ public class Worker extends Thread {
                 ObjectOutputStream oos = new ObjectOutputStream(skt.getOutputStream()); 
                 oos.writeObject(pack);
                 oos.close();
-
+                skt.close();
                 Application.removeConnection();
             } catch (IOException ex) {
                 Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
