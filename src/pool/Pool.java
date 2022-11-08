@@ -47,11 +47,12 @@ public class Pool {
         usedConnections.remove(connection);
     }
     
-    public Connection createConnection() {
+    public Connection createConnection() throws ConnectionErrorException {
         try {
             connection = DriverManager.getConnection(url,user,password); 
         } catch (SQLException ex) {
             Logger.getLogger(Pool.class.getName()).log(Level.SEVERE, null, ex);
+            throw new ConnectionErrorException("Connection error with the database. Try again later.");
         }
         return connection;
     }

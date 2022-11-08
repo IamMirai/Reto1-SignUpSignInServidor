@@ -6,6 +6,7 @@
 package main;
 
 import controller.Worker;
+import exceptions.MaxConnectionExceededException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -20,6 +21,7 @@ import java.util.logging.Logger;
 public class Application {
     private ServerSocket scktServer;
     private Socket scktClient;
+    Worker worker;
     private final ResourceBundle bundle = ResourceBundle.getBundle("pool.config");
     private final Integer MAX_CONNECTIONS = Integer.parseInt(bundle.getString("MAX_CONNECTIONS"));
     private static Integer connections = 0;
@@ -28,14 +30,14 @@ public class Application {
     public Application() {
         try {
             scktServer = new ServerSocket(Integer.parseInt(bundle.getString("PORT")));
-            LOGGER.log(Level.INFO, "Waiting for connection...\nPORT: {0}", scktServer.getLocalPort());
             while (true) {
-                if (connections < MAX_CONNECTIONS) {
-                    scktClient = scktServer.accept();
-                    Worker worker = new Worker(scktClient);
-                    worker.start();
-                    addConnection();
-                }
+                scktClient = scktServer.accept();
+                    if (connections < MAX_CONNECTIONS) {
+                        worker = new Worker(scktClient,false);
+                    } else {
+                        worker = new Worker(scktClient,true);
+                    }
+                worker.start();
             }
         } catch (IOException ex) {
             Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
