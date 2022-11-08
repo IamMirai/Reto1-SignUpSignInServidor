@@ -42,9 +42,14 @@ public class Pool {
         return connection;
     }
     
-    public void releaseConnection(Connection connection) {
+    public boolean releaseConnection(Connection connection) {
+        boolean releaseConnectionsOrNot = false;
         releasedConnections.push(connection);
         usedConnections.remove(connection);
+        if(!releasedConnections.isEmpty()){
+            releaseConnectionsOrNot = true;
+        }
+        return releaseConnectionsOrNot;
     }
     
     public Connection createConnection() {
@@ -56,13 +61,16 @@ public class Pool {
         return connection;
     }
     
-    public static void closeAllConnections() {
+    public static boolean closeAllConnections() {
+        boolean closedConnectionsOrNot = false;
         for (int i = 0; i < releasedConnections.size(); i++) {
             try {
                 releasedConnections.get(i).close();
             }catch(SQLException ex) {
                 Logger.getLogger(Pool.class.getName()).log(Level.SEVERE,null,ex);
             }
+        }if(releasedConnections.isEmpty()){
+            closedConnectionsOrNot = true;
         }
         for (int i = 0; i < usedConnections.size(); i++) {
             try {
@@ -71,6 +79,7 @@ public class Pool {
                 Logger.getLogger(Pool.class.getName()).log(Level.SEVERE,null,ex);
             }
         }
+        return closedConnectionsOrNot;
     }
 }
 
