@@ -39,12 +39,15 @@ public class DAO implements Model {
 
     /**
      * Method to do the sign in of a client
+     *
      * @param user the user that has to be checked if it exists
-     * @return the user if it finds one 
+     * @return the user if it finds one
      * @throws InvalidUserException the specified user does not exist
-     * @throws ConnectionErrorException a connection error ocurred while trying to connect to the DB
+     * @throws ConnectionErrorException a connection error ocurred while trying
+     * to connect to the DB
      * @throws TimeOutException can't connect to the DB
-     * @throws MaxConnectionExceededException the maximum connection number was exceeded
+     * @throws MaxConnectionExceededException the maximum connection number was
+     * exceeded
      */
     @Override
 
@@ -81,16 +84,16 @@ public class DAO implements Model {
             stmt = con.prepareStatement(insertSignIn);
             stmt.setString(1, user.getLogin());
             stmt.executeUpdate();
-            
+
             if (userN == null || !userN.getPassword().equals(user.getPassword())) {
                 throw new InvalidUserException();
             }
-            
+
             return user;
 
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-            return user;
+            throw new ConnectionErrorException("Connection error with the database. Try again later.");
         } finally {
             closeConnection();
         }
@@ -98,15 +101,18 @@ public class DAO implements Model {
 
     /**
      * Method to register a new user
+     *
      * @param user the user that is going to be saved in the DB
      * @return the user if there is no error otherwise returns null
      * @throws UserExistException the specified user already exists
-     * @throws ConnectionErrorException a connection error ocurred while trying to connect to the DB
+     * @throws ConnectionErrorException a connection error ocurred while trying
+     * to connect to the DB
      * @throws TimeOutException can't connect to the DB
-     * @throws MaxConnectionExceededException the maximum connection number was exceeded
+     * @throws MaxConnectionExceededException the maximum connection number was
+     * exceeded
      */
     @Override
-    public void doSignUp(User user) throws UserExistException, TimeOutException, MaxConnectionExceededException {
+    public void doSignUp(User user) throws UserExistException, TimeOutException, MaxConnectionExceededException, ConnectionErrorException {
 
         try {
             con = pool.getConnection();
@@ -114,12 +120,12 @@ public class DAO implements Model {
             stmt.setString(1, user.getLogin());
             stmt.setString(2, user.getEmail());
             stmt.setString(3, user.getFullName());
-            if (user.getStatus().equals(UserStatus.ENABLED)){
+            if (user.getStatus().equals(UserStatus.ENABLED)) {
                 stmt.setInt(4, 1);
             } else {
                 stmt.setInt(4, 2);
             }
-            if (user.getPrivilege().equals(UserPrivilege.USER)){
+            if (user.getPrivilege().equals(UserPrivilege.USER)) {
                 stmt.setInt(5, 1);
             } else {
                 stmt.setInt(5, 2);
@@ -128,14 +134,18 @@ public class DAO implements Model {
             stmt.setTimestamp(7, user.getLastPasswordChange());
 
             stmt.executeUpdate();
-            
-        } catch (SQLException | ConnectionErrorException ex) {
+
+        } catch (SQLException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            throw new UserExistException();
+        } catch (Exception ex) {
+            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            throw new ConnectionErrorException("Connection error with the database. Try again later.");
         } finally {
             closeConnection();
         }
     }
-    
+
     public void closeConnection() {
         try {
             if (stmt != null) {

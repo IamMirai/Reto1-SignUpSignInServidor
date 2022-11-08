@@ -30,11 +30,11 @@ public class Application {
             scktServer = new ServerSocket(Integer.parseInt(bundle.getString("PORT")));
             LOGGER.log(Level.INFO, "Waiting for connection...\nPORT: {0}", scktServer.getLocalPort());
             while (true) {
-                if (connections <= MAX_CONNECTIONS) {
+                if (connections < MAX_CONNECTIONS) {
                     scktClient = scktServer.accept();
                     Worker worker = new Worker(scktClient);
                     worker.start();
-                    connections++;
+                    addConnection();
                 }
             }
         } catch (IOException ex) {
@@ -44,6 +44,10 @@ public class Application {
 
     public static synchronized void removeConnection() {
         connections--;
+    }
+    
+    public static synchronized void addConnection() {
+        connections++;
     }
 
     /**

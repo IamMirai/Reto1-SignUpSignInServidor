@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 /**
  * Manage connections to the database
  * 
- * @author joana
+ * @author Haizea
  */
 public class Pool {
     private ResourceBundle bundle = ResourceBundle.getBundle("pool.config");
