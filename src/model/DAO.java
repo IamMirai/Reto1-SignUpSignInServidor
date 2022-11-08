@@ -35,7 +35,7 @@ public class DAO implements Model {
     private PreparedStatement stmt;
     private final String signUp = "INSERT INTO USER VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)";
     private final String signIn = "SELECT u.* FROM user u WHERE login = ? AND password = ?";
-    private final String insertSignIn = "INSERT INTO signin (user_id, lastSignIn) SELECT user_id, CURRENT_TIME() FROM user WHERE login = ?";
+    private final String insertSignIn = "CALL lastSignIn(?)";
 
     /**
      * Method to do the sign in of a client
@@ -64,6 +64,7 @@ public class DAO implements Model {
             if (rs.next()) {
                 userN = new User();
 
+                userN.setId(rs.getInt("user_id"));
                 userN.setLogin(rs.getString("login"));
                 userN.setEmail(rs.getString("email"));
                 userN.setFullName(rs.getString("fullName"));
@@ -82,7 +83,7 @@ public class DAO implements Model {
             }
 
             stmt = con.prepareStatement(insertSignIn);
-            stmt.setString(1, user.getLogin());
+            stmt.setInt(1, userN.getId());
             stmt.executeUpdate();
 
             if (userN == null || !userN.getPassword().equals(user.getPassword())) {
