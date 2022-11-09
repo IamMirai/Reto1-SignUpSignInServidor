@@ -79,11 +79,11 @@ public class DAO implements Model {
                 }
                 userN.setPassword(rs.getString("password"));
                 userN.setLastPasswordChange(rs.getTimestamp("lastPasswordChange"));
+                
+                stmt = con.prepareStatement(insertSignIn);
+                stmt.setString(1, user.getLogin());
+                stmt.executeUpdate();
             }
-
-            stmt = con.prepareStatement(insertSignIn);
-            stmt.setString(1, user.getLogin());
-            stmt.executeUpdate();
 
             if (userN == null || !userN.getPassword().equals(user.getPassword())) {
                 throw new InvalidUserException();
