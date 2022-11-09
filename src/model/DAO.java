@@ -91,7 +91,7 @@ public class DAO implements Model {
 
             return user;
 
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
             throw new ConnectionErrorException("Connection error with the database. Try again later.");
         } finally {
