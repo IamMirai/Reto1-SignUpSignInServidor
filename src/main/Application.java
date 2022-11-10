@@ -1,25 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package main;
 
 import controller.ServerCloseThread;
 import controller.Worker;
-import exceptions.MaxConnectionExceededException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.print.attribute.standard.Severity;
 
 /**
- *
- * @author 2dam
+ * @author Sendoa, Mikel, Julen y Haizea
+ * The main class of the application that manages the connection with the clients.
  */
 public class Application {
 
@@ -31,7 +23,8 @@ public class Application {
     private final Integer MAX_CONNECTIONS = Integer.parseInt(bundle.getString("MAX_CONNECTIONS"));
     private static Integer connections = 0;
     private static final Logger LOGGER = Logger.getLogger("Application");
-
+    
+    
     public Application() {
         try {
             scktServer = new ServerSocket(Integer.parseInt(bundle.getString("PORT")));
@@ -47,7 +40,7 @@ public class Application {
                 worker.start();
             }
         } catch (IOException ex) {
-            Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE,ex.getMessage());
         }
     }
 

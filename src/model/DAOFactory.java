@@ -1,20 +1,17 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package model;
 
 import datatransferobject.Model;
-import java.sql.Connection;
 
 /**
- *
- * @author haize
+ * @author Haizea
+ * This class is the Data Factory of the DAO.
  */
 public class DAOFactory {
         private static Model model;
-        
+    /**
+     * This is the method which creates the implementation.
+     * @return the model implementation (DAO). 
+     */
     public static Model getModel() {
         if (model == null) {
             model = new DAO();

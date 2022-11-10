@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package model;
 
 import com.mysql.jdbc.Connection;
@@ -28,8 +23,8 @@ import static org.junit.Assert.*;
 import pool.Pool;
 
 /**
- *
- * @author haize
+ * The test of the DAO class
+ * @author Haizea
  */
 public class DAOTest {
     private static PreparedStatement stmt;
@@ -41,6 +36,7 @@ public class DAOTest {
     private final String checkSignIn = "SELECT * FROM signIn WHERE user_id LIKE (SELECT user_id FROM user WHERE login LIKE ?)";
     private final String deleteUser = "DELETE FROM user WHERE login LIKE ?";
     private final String checkUser = "SELECT * FROM user WHERE login LIKE ?";
+    private static final Logger LOGGER = Logger.getLogger("DAOTest.class");
     
     @BeforeClass
     public static void setUpClass() {
@@ -49,7 +45,7 @@ public class DAOTest {
         try {
             con = (Connection) pool.getConnection();
         } catch (ConnectionErrorException ex) {
-            Logger.getLogger(DAOTest.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE,ex.getMessage());
         }
     }
     
@@ -63,8 +59,7 @@ public class DAOTest {
                 pool.releaseConnection(con);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-
+            LOGGER.log(Level.SEVERE,ex.getMessage());
         }
     }
     
@@ -94,7 +89,7 @@ public class DAOTest {
             stmt.setString(1,user.getLogin());
             rs = stmt.executeQuery();
         } catch (SQLException ex) {
-            Logger.getLogger(DAOTest.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE,ex.getMessage());
         }
         assertNotNull(rs);
         deleteUser(user);
@@ -122,12 +117,16 @@ public class DAOTest {
             stmt.setString(1,user.getLogin());
             rs = stmt.executeQuery();
         } catch (SQLException ex) {
-            Logger.getLogger(DAOTest.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE,ex.getMessage());
         }
         assertNotNull(rs);
         deleteUser(user);
     }
     
+    /**
+     * Method to delete the signIns of the specific user.
+     * @param user the user whose signins has to be deleted.
+     */
     private void deleteSignIn(User user) {
         try {
             stmt = con.prepareStatement(checkSignIn);
@@ -139,10 +138,14 @@ public class DAOTest {
                 stmt.executeUpdate();
             }
         } catch (SQLException ex) {
-            Logger.getLogger(DAOTest.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE,ex.getMessage());
         }
     }
     
+    /**
+     * Method to delete the specific user.
+     * @param user the user that has to be deleted.
+     */
     private void deleteUser(User user) {
         try {
             stmt = con.prepareStatement(checkUser);
@@ -154,7 +157,7 @@ public class DAOTest {
                 stmt.executeUpdate();
             }
         } catch (SQLException ex) {
-            Logger.getLogger(DAOTest.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE,ex.getMessage());
         }
     }
     

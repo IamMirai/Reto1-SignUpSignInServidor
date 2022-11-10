@@ -1,6 +1,4 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * This package includes the model of the server that controls the access with the database. It also includes the factory of the DAO.
  */
 package model;

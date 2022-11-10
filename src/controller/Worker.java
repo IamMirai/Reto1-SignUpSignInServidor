@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package controller;
 
 import datatransferobject.MessageEnum;
@@ -25,21 +20,29 @@ import model.DAOFactory;
 
 
 /**
- *
- * @author haize
+ * @author Haizea
+ * Thread that manages the request and answers with exception handling.
  */
 public class Worker extends Thread {
     private Package pack;
     private final Socket skt;
     private User user;
-    private Boolean exc;
+    private final Boolean exc;
+    private static final Logger LOGGER = Logger.getLogger("Worker.class");
     
+    /**
+     * @param skt Socket to get the streams.
+     * @param exc Boolean to handle the MaxConnectionExceededException.
+     */
     public Worker(Socket skt, Boolean exc) {
         this.skt = skt;
         this.exc = exc;
         pack = new Package();
     }
     
+     /**
+     * This method manages the requests and answers through streams.
+     */
     @Override
     public void run() {
         try {
@@ -57,24 +60,20 @@ public class Worker extends Thread {
                 model.doSignUp(pack.getUser());
             }
             pack.setMessage(MessageEnum.AN_OK);
-        } catch (IOException ex) {
-            Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException | ClassNotFoundException | TimeOutException ex) {
+            LOGGER.log(Level.SEVERE,ex.getMessage());
         } catch (InvalidUserException ex) {
-            Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE,ex.getMessage());
             pack.setMessage(MessageEnum.AN_INVALIDUSER);
-        } catch (TimeOutException ex) {
-            Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
         } catch (MaxConnectionExceededException ex) {
-            Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE,ex.getMessage());
             pack.setMessage(MessageEnum.AN_MAXCONNECTION);
         } catch (UserExistException ex) {
-            Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE,ex.getMessage());
             pack.setMessage(MessageEnum.AN_USEREXIST);
         } catch (ConnectionErrorException ex) {
-            Logger.getLogger(Worker.class.getName()).log(Level.SEVERE, null, ex);
-             pack.setMessage(MessageEnum.AN_CONNECTIONERROR);
+            LOGGER.log(Level.SEVERE,ex.getMessage());
+            pack.setMessage(MessageEnum.AN_CONNECTIONERROR);
         } finally {
             try {
                 ObjectOutputStream oos = new ObjectOutputStream(skt.getOutputStream()); 
