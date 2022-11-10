@@ -28,6 +28,7 @@ public class ServerCloseThread extends Thread{
     public void run() {
         try {
             while(true){
+                System.out.println("Write 'kill' to close the server.");
                 Scanner sc= new Scanner(System.in);
                 String s = sc.next();
                 if(s.equalsIgnoreCase("kill")){

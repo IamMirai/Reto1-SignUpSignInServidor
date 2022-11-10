@@ -20,7 +20,7 @@ import model.DAOFactory;
 
 
 /**
- * @author Haizea
+ * @author Sendoa, Mikel, Julen and Haizea
  * Thread that manages the request and answers with exception handling.
  */
 public class Worker extends Thread {
