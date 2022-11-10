@@ -22,6 +22,7 @@ import javax.print.attribute.standard.Severity;
  * @author 2dam
  */
 public class Application {
+
     private ServerSocket scktServer;
     private Socket scktClient;
     Worker worker;
@@ -34,26 +35,26 @@ public class Application {
     public Application() {
         try {
             scktServer = new ServerSocket(Integer.parseInt(bundle.getString("PORT")));
+            serverClose = new ServerCloseThread(scktServer);
+            serverClose.start();
             while (true) {
-                serverClose = new ServerCloseThread(scktServer);
-                serverClose.start();
                 scktClient = scktServer.accept();
-                    if (connections < MAX_CONNECTIONS) {
-                        worker = new Worker(scktClient,false);
-                    } else {
-                        worker = new Worker(scktClient,true);
-                    }
+                if (connections < MAX_CONNECTIONS) {
+                    worker = new Worker(scktClient, false);
+                } else {
+                    worker = new Worker(scktClient, true);
+                }
                 worker.start();
             }
         } catch (IOException ex) {
             Logger.getLogger(Application.class.getName()).log(Level.SEVERE, null, ex);
-        } 
+        }
     }
 
     public static synchronized void removeConnection() {
         connections--;
     }
-    
+
     public static synchronized void addConnection() {
         connections++;
     }
