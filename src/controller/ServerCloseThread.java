@@ -1,29 +1,29 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package controller;
 
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import pool.Pool;
 
 /**
- *
- * @author Mikel
+ * @author Mikel and Sendoa
+ * Thread to close the server from the console.
  */
 public class ServerCloseThread extends Thread{
     private final ServerSocket sSkt;
-
+    
+    /**
+     * @param sSkt Server socket that has to be closed.
+     */
     public ServerCloseThread(ServerSocket sSkt) {
         this.sSkt = sSkt;
     }
-
+    
+    /**
+     * This method keeps in a loop waiting for "kill" to be entered to shut down te server.
+     */
     @Override
     public void run() {
         try {

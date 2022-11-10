@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package model;
 
 import datatransferobject.Model;
@@ -23,8 +18,8 @@ import java.util.logging.Logger;
 import pool.Pool;
 
 /**
- *
  * @author Sendoa, Haizea, Julen y Mikel
+ * This class is the implementation of the model which perfoms the actions with the database.
  */
 public class DAO implements Model {
 
@@ -34,7 +29,8 @@ public class DAO implements Model {
     private final String signUp = "INSERT INTO USER VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)";
     private final String signIn = "SELECT u.* FROM user u WHERE login = ? AND password = ?";
     private final String insertSignIn = "INSERT INTO signin (user_id, lastSignIn) SELECT user_id, CURRENT_TIME() FROM user WHERE login = ?";
-
+    private static final Logger LOGGER = Logger.getLogger("DAO.class");
+    
     /**
      * Method to do the sign in of a client
      *
@@ -48,7 +44,6 @@ public class DAO implements Model {
      * exceeded
      */
     @Override
-
     public User doSignIn(User user) throws InvalidUserException, TimeOutException, MaxConnectionExceededException, ConnectionErrorException {
 
         try {
@@ -90,7 +85,7 @@ public class DAO implements Model {
             return userN;
 
         } catch (SQLException ex) {
-            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE,ex.getMessage());
             throw new ConnectionErrorException("Connection error with the database. Try again later.");
         } finally {
             closeConnection();
@@ -101,7 +96,6 @@ public class DAO implements Model {
      * Method to register a new user
      *
      * @param user the user that is going to be saved in the DB
-     * @return the user if there is no error otherwise returns null
      * @throws UserExistException the specified user already exists
      * @throws ConnectionErrorException a connection error ocurred while trying
      * to connect to the DB
@@ -134,16 +128,19 @@ public class DAO implements Model {
             stmt.executeUpdate();
 
         } catch (SQLException ex) {
-            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE,ex.getMessage());
             throw new UserExistException();
         } catch (Exception ex) {
-            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.log(Level.SEVERE,ex.getMessage());
             throw new ConnectionErrorException("Connection error with the database. Try again later.");
         } finally {
             closeConnection();
         }
     }
-
+    
+    /**
+     * This method closes the preparedStatement and releases the connection if they are not null.
+     */
     public void closeConnection() {
         try {
             if (stmt != null) {
@@ -153,8 +150,7 @@ public class DAO implements Model {
                 pool.releaseConnection(con);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
-
+            LOGGER.log(Level.SEVERE,ex.getMessage());
         }
     }
 
