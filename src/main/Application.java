@@ -5,14 +5,17 @@
  */
 package main;
 
+import controller.ServerCloseThread;
 import controller.Worker;
 import exceptions.MaxConnectionExceededException;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.print.attribute.standard.Severity;
 
 /**
  *
@@ -22,6 +25,7 @@ public class Application {
     private ServerSocket scktServer;
     private Socket scktClient;
     Worker worker;
+    ServerCloseThread serverClose;
     private final ResourceBundle bundle = ResourceBundle.getBundle("pool.config");
     private final Integer MAX_CONNECTIONS = Integer.parseInt(bundle.getString("MAX_CONNECTIONS"));
     private static Integer connections = 0;
@@ -31,6 +35,8 @@ public class Application {
         try {
             scktServer = new ServerSocket(Integer.parseInt(bundle.getString("PORT")));
             while (true) {
+                serverClose = new ServerCloseThread(scktServer);
+                serverClose.start();
                 scktClient = scktServer.accept();
                     if (connections < MAX_CONNECTIONS) {
                         worker = new Worker(scktClient,false);

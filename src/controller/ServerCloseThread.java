@@ -11,6 +11,7 @@ import java.net.Socket;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import pool.Pool;
 
 /**
  *
@@ -18,11 +19,9 @@ import java.util.logging.Logger;
  */
 public class ServerCloseThread extends Thread{
     private final ServerSocket sSkt;
-    private final Socket skt;
 
-    public ServerCloseThread(ServerSocket sSkt, Socket skt) {
+    public ServerCloseThread(ServerSocket sSkt) {
         this.sSkt = sSkt;
-        this.skt = skt;
     }
 
     @Override
@@ -30,12 +29,12 @@ public class ServerCloseThread extends Thread{
         try {
             while(true){
                 Scanner sc= new Scanner(System.in);
-                String s = sc.nextLine();
+                String s = sc.next();
                 if(s.equalsIgnoreCase("kill")){
                     break;
                 }
             }
-            skt.close();
+            Pool.closeAllConnections();
             sSkt.close();
         } catch (IOException ex) {
             Logger.getLogger(ServerCloseThread.class.getName()).log(Level.SEVERE, null, ex);
