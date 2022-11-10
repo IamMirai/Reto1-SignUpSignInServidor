@@ -52,12 +52,11 @@ public class Pool {
         return releaseConnectionsOrNot;
     }
     
-    public Connection createConnection() throws ConnectionErrorException {
+    public Connection createConnection() {
         try {
             connection = DriverManager.getConnection(url,user,password); 
         } catch (SQLException ex) {
             Logger.getLogger(Pool.class.getName()).log(Level.SEVERE, null, ex);
-            throw new ConnectionErrorException("Connection error with the database. Try again later.");
         }
         return connection;
     }
@@ -83,4 +82,3 @@ public class Pool {
         return closedConnectionsOrNot;
     }
 }
-
