@@ -15,11 +15,9 @@ import exceptions.MaxConnectionExceededException;
 import exceptions.TimeOutException;
 import exceptions.UserExistException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import pool.Pool;
@@ -89,7 +87,7 @@ public class DAO implements Model {
                 throw new InvalidUserException();
             }
 
-            return user;
+            return userN;
 
         } catch (SQLException ex) {
             Logger.getLogger(DAO.class.getName()).log(Level.SEVERE, null, ex);
