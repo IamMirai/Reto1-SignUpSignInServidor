@@ -13,6 +13,7 @@ import pool.Pool;
  */
 public class ServerCloseThread extends Thread{
     private final ServerSocket sSkt;
+    private static final Logger LOGGER = Logger.getLogger("ServerCloseThread.class");
     
     /**
      * @param sSkt Server socket that has to be closed.
@@ -28,7 +29,7 @@ public class ServerCloseThread extends Thread{
     public void run() {
         try {
             while(true){
-                System.out.println("Write 'kill' to close the server.");
+                LOGGER.info("Write 'kill' to close the server.");
                 Scanner sc= new Scanner(System.in);
                 String s = sc.next();
                 if(s.equalsIgnoreCase("kill")){
